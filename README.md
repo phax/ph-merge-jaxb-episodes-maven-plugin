@@ -1,5 +1,7 @@
 # ph-merge-jaxb-episodes-maven-plugin
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.helger.maven/ph-merge-jaxb-episodes-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.helger.maven/ph-merge-jaxb-episodes-maven-plugin) 
+
 A specific Maven plugin that merges multiple `META-INF/sun-jaxb.episode` files into a single one.
 
 This plugin is helpful if you have multiple executions of the `maven-jaxb2-plugin` in your plugin.
