@@ -54,21 +54,22 @@ public final class MergeJaxbEpisodesMojoProjectStub extends MavenProjectStub
 
     final Build build = new Build ();
     build.setFinalName (model.getArtifactId ());
-    build.setDirectory (getBasedir () + "/target");
-    build.setSourceDirectory (getBasedir () + "/src/main/java");
-    build.setOutputDirectory (getBasedir () + "/target/classes");
-    build.setTestSourceDirectory (getBasedir () + "/src/test/java");
-    build.setTestOutputDirectory (getBasedir () + "/target/test-classes");
+    final String sBase = getBasedir ().getAbsolutePath ();
+    build.setDirectory (sBase + "/target");
+    build.setSourceDirectory (sBase + "/src/main/java");
+    build.setOutputDirectory (sBase + "/target/classes");
+    build.setTestSourceDirectory (sBase + "/src/test/java");
+    build.setTestOutputDirectory (sBase + "/target/test-classes");
     setBuild (build);
 
-    setCompileSourceRoots (new CommonsArrayList <> (getBasedir () + "/src/main/java"));
-    setTestCompileSourceRoots (new CommonsArrayList <> (getBasedir () + "/src/test/java"));
+    setCompileSourceRoots (new CommonsArrayList <> (sBase + "/src/main/java"));
+    setTestCompileSourceRoots (new CommonsArrayList <> (sBase + "/src/test/java"));
   }
 
   /** {@inheritDoc} */
   @Override
   public File getBasedir ()
   {
-    return new File (super.getBasedir () + "/src/test/resources/poms/unittest1/");
+    return new File (super.getBasedir (), "/src/test/resources/poms/unittest1/");
   }
 }

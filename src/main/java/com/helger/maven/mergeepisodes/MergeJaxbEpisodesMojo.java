@@ -55,7 +55,7 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
   private static final String FILENAME = "sun-jaxb.episode";
 
   @Parameter (property = "project", required = true, readonly = true)
-  MavenProject project;
+  private MavenProject project;
 
   /**
    * The base directory to start scanning recursively. Defaults to
@@ -110,6 +110,57 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     getLog ().info ("Maven resources [" + aRess.size () + "] - " + sReason);
     for (final Resource aRes : aRess)
       getLog ().info ("  Resource: " + _getResString (aRes));
+  }
+
+  private byte [] _mergeAsXML (final ICommonsList <File> aMatches) throws MojoExecutionException
+  {
+    if (verbose)
+      getLog ().info ("Merging " + aMatches.size () + " files using XML parsing/cloning");
+
+    final Document aTargetDoc = XMLFactory.newDocument ();
+
+    // <bindings xmlns="http://java.sun.com/xml/ns/jaxb" if-exists="true"
+    // version="2.1">
+    final Element aTargetRoot = (Element) aTargetDoc.appendChild (aTargetDoc.createElementNS ("http://java.sun.com/xml/ns/jaxb",
+                                                                                              "bindings"));
+    aTargetRoot.setAttribute ("if-exists", "true");
+    aTargetRoot.setAttribute ("version", "2.1");
+
+    final StringBuilder aCommentSB = new StringBuilder ();
+    aCommentSB.append ("This file was automatically created by ph-merge-jaxb-episodes-maven-plugin - do NOT edit.");
+    aCommentSB.append ("\nThis file was made up of:");
+    for (final File aFile : aMatches)
+      aCommentSB.append ("\n  ").append (aFile.getPath ());
+    aCommentSB.append ("\n\nThis file was written at ").append (PDTFactory.getCurrentZonedDateTime ().toString ());
+    aTargetRoot.appendChild (aTargetDoc.createComment (aCommentSB.toString ()));
+
+    for (final File aFile : aMatches)
+    {
+      if (verbose)
+        getLog ().info ("Parsing XML file '" + aFile.getPath () + "'");
+
+      final Document aExistingDoc = DOMReader.readXMLDOM (aFile);
+      if (aExistingDoc == null)
+        throw new MojoExecutionException ("The file '" + aFile.getAbsolutePath () + "' is invalid XML");
+
+      final Element aExistingRoot = aExistingDoc.getDocumentElement ();
+      if (!"bindings".equals (aExistingRoot.getLocalName ()))
+        throw new MojoExecutionException ("The file '" +
+                                          aFile.getAbsolutePath () +
+                                          "' does not seem to be a JAXB binding file (unexpected element name)");
+      if (!"http://java.sun.com/xml/ns/jaxb".equals (aExistingRoot.getNamespaceURI ()))
+        throw new MojoExecutionException ("The file '" +
+                                          aFile.getAbsolutePath () +
+                                          "' does not seem to be a JAXB binding file (unexpected namespace URI)");
+
+      // Copy to target document
+      for (final Node aChildNode : NodeListIterator.createChildNodeIterator (aExistingRoot))
+      {
+        aTargetRoot.appendChild (aTargetDoc.adoptNode (aChildNode.cloneNode (true)));
+      }
+    }
+
+    return XMLWriter.getNodeAsBytes (aTargetDoc);
   }
 
   public void execute () throws MojoExecutionException
@@ -174,48 +225,8 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     }
     else
     {
-      final Document aTargetDoc = XMLFactory.newDocument ();
-
-      // <bindings xmlns="http://java.sun.com/xml/ns/jaxb" if-exists="true"
-      // version="2.1">
-      final Element aTargetRoot = (Element) aTargetDoc.appendChild (aTargetDoc.createElementNS ("http://java.sun.com/xml/ns/jaxb",
-                                                                                                "bindings"));
-      aTargetRoot.setAttribute ("if-exists", "true");
-      aTargetRoot.setAttribute ("version", "2.1");
-
-      final StringBuilder aCommentSB = new StringBuilder ();
-      aCommentSB.append ("This file was automatically created by ph-merge-jaxb-episodes-maven-plugin - do NOT edit.");
-      aCommentSB.append ("\nThis file was made up of:");
-      for (final File aFile : aMatches)
-        aCommentSB.append ("\n  ").append (aFile.getPath ());
-      aCommentSB.append ("\n\nThis file was written at ").append (PDTFactory.getCurrentZonedDateTime ().toString ());
-      aTargetRoot.appendChild (aTargetDoc.createComment (aCommentSB.toString ()));
-
-      for (final File aFile : aMatches)
-      {
-        if (verbose)
-          getLog ().info ("Parsing XML file '" + aFile.getPath () + "'");
-
-        final Document aExistingDoc = DOMReader.readXMLDOM (aFile);
-        if (aExistingDoc == null)
-          throw new MojoExecutionException ("The file '" + aFile.getAbsolutePath () + "' is invalid XML");
-
-        final Element aExistingRoot = aExistingDoc.getDocumentElement ();
-        if (!"bindings".equals (aExistingRoot.getLocalName ()))
-          throw new MojoExecutionException ("The file '" +
-                                            aFile.getAbsolutePath () +
-                                            "' does not seem to be a JAXB binding file (unexpected element name)");
-        if (!"http://java.sun.com/xml/ns/jaxb".equals (aExistingRoot.getNamespaceURI ()))
-          throw new MojoExecutionException ("The file '" +
-                                            aFile.getAbsolutePath () +
-                                            "' does not seem to be a JAXB binding file (unexpected namespace URI)");
-
-        // Copy to target document
-        for (final Node aChildNode : NodeListIterator.createChildNodeIterator (aExistingRoot))
-          aTargetRoot.appendChild (aTargetDoc.adoptNode (aChildNode.cloneNode (true)));
-      }
-
-      final byte [] aTargetXML = XMLWriter.getNodeAsBytes (aTargetDoc);
+      byte [] aTargetXML;
+      aTargetXML = _mergeAsXML (aMatches);
       final File fTarget = new File (project.getBuild ().getDirectory () + "/" + OUTPUT_FOLDER, FILENAME);
 
       if (verbose)
