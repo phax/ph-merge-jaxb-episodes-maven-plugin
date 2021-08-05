@@ -32,6 +32,8 @@ To change this, include the plugin like this (replacing `x.y.z` with the effecti
 
 # News and noteworthy
 
+* v0.0.2 - 2021-08-05
+    * Changed merging algorithm to be line-based instead of DOM Node based
 * v0.0.1 - 2021-08-05
     * Initial release
 

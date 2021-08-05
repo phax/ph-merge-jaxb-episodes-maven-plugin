@@ -17,6 +17,8 @@
 package com.helger.maven.mergeepisodes;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -38,6 +40,7 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.io.file.SimpleFileIO;
+import com.helger.commons.io.stream.NonBlockingByteArrayOutputStream;
 import com.helger.xml.NodeListIterator;
 import com.helger.xml.XMLFactory;
 import com.helger.xml.serialize.read.DOMReader;
@@ -112,7 +115,53 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
       getLog ().info ("  Resource: " + _getResString (aRes));
   }
 
-  private byte [] _mergeAsXML (final ICommonsList <File> aMatches) throws MojoExecutionException
+  private String _getHeaderComment (final List <File> aMatches)
+  {
+    final StringBuilder aCommentSB = new StringBuilder ();
+    aCommentSB.append ("This file was automatically created by ph-merge-jaxb-episodes-maven-plugin - do NOT edit.");
+    aCommentSB.append ("\nThis file was made up of:");
+    for (final File aFile : aMatches)
+      aCommentSB.append ("\n  ").append (aFile.getPath ());
+    aCommentSB.append ("\n\nThis file was written at ").append (PDTFactory.getCurrentZonedDateTime ().toString ());
+    return aCommentSB.toString ();
+  }
+
+  private byte [] _mergeByReadingLines (final List <File> aMatches)
+  {
+    if (verbose)
+      getLog ().info ("Merging " + aMatches.size () + " files using line by line reading");
+
+    final Charset aCS = StandardCharsets.UTF_8;
+    try (NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
+    {
+      aBAOS.write ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes (aCS));
+      aBAOS.write ("<bindings xmlns=\"http://java.sun.com/xml/ns/jaxb\" if-exists=\"true\" version=\"2.1\">\n".getBytes (aCS));
+      aBAOS.write (("<!--\n" + _getHeaderComment (aMatches) + "\n-->\n").getBytes (aCS));
+
+      for (final File aFile : aMatches)
+      {
+        final List <String> aLines = new CommonsArrayList <> (10_000);
+        SimpleFileIO.readFileLines (aFile, aCS, aLines);
+        // Remove the first 2 and the last line
+        aLines.remove (0);
+        aLines.remove (0);
+        aLines.remove (aLines.size () - 1);
+
+        // Copy the rest into the file
+        for (final String sLine : aLines)
+        {
+          aBAOS.write (sLine.getBytes (aCS));
+          aBAOS.write ('\n');
+        }
+      }
+
+      aBAOS.write ("</bindings>\n".getBytes (aCS));
+      return aBAOS.toByteArray ();
+    }
+  }
+
+  @Nonnull
+  private byte [] _mergeByReadingXML (final ICommonsList <File> aMatches) throws MojoExecutionException
   {
     if (verbose)
       getLog ().info ("Merging " + aMatches.size () + " files using XML parsing/cloning");
@@ -125,14 +174,7 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
                                                                                               "bindings"));
     aTargetRoot.setAttribute ("if-exists", "true");
     aTargetRoot.setAttribute ("version", "2.1");
-
-    final StringBuilder aCommentSB = new StringBuilder ();
-    aCommentSB.append ("This file was automatically created by ph-merge-jaxb-episodes-maven-plugin - do NOT edit.");
-    aCommentSB.append ("\nThis file was made up of:");
-    for (final File aFile : aMatches)
-      aCommentSB.append ("\n  ").append (aFile.getPath ());
-    aCommentSB.append ("\n\nThis file was written at ").append (PDTFactory.getCurrentZonedDateTime ().toString ());
-    aTargetRoot.appendChild (aTargetDoc.createComment (aCommentSB.toString ()));
+    aTargetRoot.appendChild (aTargetDoc.createComment (_getHeaderComment (aMatches)));
 
     for (final File aFile : aMatches)
     {
@@ -225,8 +267,20 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     }
     else
     {
-      byte [] aTargetXML;
-      aTargetXML = _mergeAsXML (aMatches);
+      final byte [] aTargetXML;
+      if (true)
+        aTargetXML = _mergeByReadingLines (aMatches);
+      else
+      {
+        // Unfortunately this approach does not work because the "tns" namespace
+        // attributes are lost:
+        // <bindings xmlns:tns="http://www.w3.org/ns/corevocabulary/business"
+        // if-exists="true" scd="x-schema::tns">
+        // becomes
+        // <bindings if-exists="true" scd="x-schema::tns">
+        // which renders the resulting file unuseable
+        aTargetXML = _mergeByReadingXML (aMatches);
+      }
       final File fTarget = new File (project.getBuild ().getDirectory () + "/" + OUTPUT_FOLDER, FILENAME);
 
       if (verbose)
