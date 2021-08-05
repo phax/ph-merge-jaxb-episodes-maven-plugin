@@ -36,6 +36,7 @@ import org.w3c.dom.Node;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.io.file.SimpleFileIO;
 import com.helger.xml.NodeListIterator;
 import com.helger.xml.XMLFactory;
@@ -50,6 +51,7 @@ import com.helger.xml.serialize.write.XMLWriter;
 @Mojo (name = "merge-jaxb-episodes", defaultPhase = LifecyclePhase.PROCESS_RESOURCES, threadSafe = true)
 public final class MergeJaxbEpisodesMojo extends AbstractMojo
 {
+  private static final String OUTPUT_FOLDER = "merged-jaxb-episode";
   private static final String FILENAME = "sun-jaxb.episode";
 
   @Parameter (property = "project", required = true, readonly = true)
@@ -151,6 +153,8 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
       final DirectoryScanner aScanner = new DirectoryScanner ();
       aScanner.setBasedir (baseDirectory);
       aScanner.setIncludes (episodeFiles);
+      // Exclude the result of a previous builds as well as our output file
+      aScanner.setExcludes (new String [] { "classes/META-INF/" + FILENAME, "**/" + OUTPUT_FOLDER + "/" + FILENAME });
       aScanner.setCaseSensitive (true);
       aScanner.scan ();
 
@@ -178,7 +182,14 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
                                                                                                 "bindings"));
       aTargetRoot.setAttribute ("if-exists", "true");
       aTargetRoot.setAttribute ("version", "2.1");
-      aTargetRoot.appendChild (aTargetDoc.createComment ("This file was automatically created by ph-merge-jaxb-episodes-maven-plugin - do NOT edit"));
+
+      final StringBuilder aCommentSB = new StringBuilder ();
+      aCommentSB.append ("This file was automatically created by ph-merge-jaxb-episodes-maven-plugin - do NOT edit.");
+      aCommentSB.append ("\nThis file was made up of:");
+      for (final File aFile : aMatches)
+        aCommentSB.append ("\n  ").append (aFile.getPath ());
+      aCommentSB.append ("\n\nThis file was written at ").append (PDTFactory.getCurrentZonedDateTime ().toString ());
+      aTargetRoot.appendChild (aTargetDoc.createComment (aCommentSB.toString ()));
 
       for (final File aFile : aMatches)
       {
@@ -205,7 +216,7 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
       }
 
       final byte [] aTargetXML = XMLWriter.getNodeAsBytes (aTargetDoc);
-      final File fTarget = new File (project.getBuild ().getDirectory () + "/merged-jaxb-episode", FILENAME);
+      final File fTarget = new File (project.getBuild ().getDirectory () + "/" + OUTPUT_FOLDER, FILENAME);
 
       if (verbose)
         getLog ().info ("Writing combined " + FILENAME + " to '" + fTarget.getAbsolutePath () + "'");
