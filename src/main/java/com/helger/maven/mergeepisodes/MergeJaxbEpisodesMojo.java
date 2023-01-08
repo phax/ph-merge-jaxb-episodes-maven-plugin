@@ -35,6 +35,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.annotation.Since;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
@@ -79,6 +81,13 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
   @Parameter (name = "episodeFiles", defaultValue = "**/" + FILENAME, required = true)
   private String [] episodeFiles;
 
+  /**
+   * Use Jakarta Namespace (JAXB 3.0 and 4.0) or Sun Namespace (JAXB 2.x)
+   */
+  @Since ("0.0.4")
+  @Parameter (name = "useJakarta", defaultValue = "true", required = false)
+  private boolean useJakarta = true;
+
   public void setBaseDirectory (@Nonnull final File aDir)
   {
     baseDirectory = aDir;
@@ -91,6 +100,11 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
   public void setVerbose (final boolean b)
   {
     verbose = b;
+  }
+
+  public void setUseJakarta (final boolean b)
+  {
+    useJakarta = b;
   }
 
   @Nonnull
@@ -126,7 +140,7 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     return aCommentSB.toString ();
   }
 
-  private byte [] _mergeByReadingLines (final List <File> aMatches)
+  private byte [] _mergeByReadingLines (@Nonnull @Nonempty final List <File> aMatches)
   {
     if (verbose)
       getLog ().info ("Merging " + aMatches.size () + " files using line by line reading");
@@ -135,7 +149,9 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     try (NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
     {
       aBAOS.write ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes (aCS));
-      aBAOS.write ("<bindings xmlns=\"http://java.sun.com/xml/ns/jaxb\" if-exists=\"true\" version=\"2.1\">\n".getBytes (aCS));
+
+      aBAOS.write ((useJakarta ? "<bindings xmlns=\"https://jakarta.ee/xml/ns/jaxb\" if-exists=\"true\" version=\"3.0\">\n"
+                               : "<bindings xmlns=\"http://java.sun.com/xml/ns/jaxb\" if-exists=\"true\" version=\"2.1\">\n").getBytes (aCS));
       aBAOS.write (("<!--\n" + _getHeaderComment (aMatches) + "\n-->\n").getBytes (aCS));
 
       for (final File aFile : aMatches)
@@ -161,20 +177,34 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
   }
 
   @Nonnull
-  private byte [] _mergeByReadingXML (final ICommonsList <File> aMatches) throws MojoExecutionException
+  private byte [] _mergeByReadingXML (@Nonnull @Nonempty final ICommonsList <File> aMatches) throws MojoExecutionException
   {
     if (verbose)
       getLog ().info ("Merging " + aMatches.size () + " files using XML parsing/cloning");
 
     final Document aTargetDoc = XMLFactory.newDocument ();
 
-    // <bindings xmlns="http://java.sun.com/xml/ns/jaxb" if-exists="true"
-    // version="2.1">
-    final Element aTargetRoot = (Element) aTargetDoc.appendChild (aTargetDoc.createElementNS ("http://java.sun.com/xml/ns/jaxb",
-                                                                                              "bindings"));
-    aTargetRoot.setAttribute ("if-exists", "true");
-    aTargetRoot.setAttribute ("version", "2.1");
-    aTargetRoot.appendChild (aTargetDoc.createComment (_getHeaderComment (aMatches)));
+    final Element aTargetRoot;
+    if (useJakarta)
+    {
+      // <bindings xmlns="https://jakarta.ee/xml/ns/jaxb" if-exists="true"
+      // version="3.0">
+      aTargetRoot = (Element) aTargetDoc.appendChild (aTargetDoc.createElementNS ("https://jakarta.ee/xml/ns/jaxb",
+                                                                                  "bindings"));
+      aTargetRoot.setAttribute ("if-exists", "true");
+      aTargetRoot.setAttribute ("version", "3.0");
+      aTargetRoot.appendChild (aTargetDoc.createComment (_getHeaderComment (aMatches)));
+    }
+    else
+    {
+      // <bindings xmlns="http://java.sun.com/xml/ns/jaxb" if-exists="true"
+      // version="2.1">
+      aTargetRoot = (Element) aTargetDoc.appendChild (aTargetDoc.createElementNS ("http://java.sun.com/xml/ns/jaxb",
+                                                                                  "bindings"));
+      aTargetRoot.setAttribute ("if-exists", "true");
+      aTargetRoot.setAttribute ("version", "2.1");
+      aTargetRoot.appendChild (aTargetDoc.createComment (_getHeaderComment (aMatches)));
+    }
 
     for (final File aFile : aMatches)
     {
