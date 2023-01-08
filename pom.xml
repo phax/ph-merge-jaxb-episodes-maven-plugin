@@ -26,7 +26,7 @@
   </parent>
   <groupId>com.helger.maven</groupId>
   <artifactId>ph-merge-jaxb-episodes-maven-plugin</artifactId>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <name>ph-merge-jab-episodes-maven-plugin</name>
   <description>Maven plugin for merge multiple sun-jaxb.episodes files in a project into a single file</description>
