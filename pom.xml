@@ -22,11 +22,11 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>parent-pom</artifactId>
-    <version>1.11.5</version>
+    <version>2.0.0</version>
   </parent>
   <groupId>com.helger.maven</groupId>
   <artifactId>ph-merge-jaxb-episodes-maven-plugin</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <name>ph-merge-jab-episodes-maven-plugin</name>
   <description>Maven plugin for merge multiple sun-jaxb.episodes files in a project into a single file</description>
@@ -77,7 +77,7 @@
       <dependency>
         <groupId>com.helger.commons</groupId>
         <artifactId>ph-commons-parent-pom</artifactId>
-        <version>10.2.0</version>
+        <version>11.0.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -171,7 +171,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.6.4</version>
+        <version>3.7.0</version>
       </plugin>
     </plugins>
   </reporting>
