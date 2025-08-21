@@ -19,6 +19,8 @@ package com.helger.maven.mergeepisodes;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -35,14 +37,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.Since;
-import com.helger.commons.collection.ArrayHelper;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.datetime.PDTFactory;
-import com.helger.commons.io.file.SimpleFileIO;
-import com.helger.commons.io.stream.NonBlockingByteArrayOutputStream;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.misc.Since;
+import com.helger.base.CGlobal;
+import com.helger.base.array.ArrayHelper;
+import com.helger.base.io.nonblocking.NonBlockingByteArrayOutputStream;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.io.file.SimpleFileIO;
 import com.helger.xml.NodeListIterator;
 import com.helger.xml.XMLFactory;
 import com.helger.xml.serialize.read.DOMReader;
@@ -50,8 +52,7 @@ import com.helger.xml.serialize.write.XMLWriter;
 
 /**
  * @author Philip Helger
- * @description Merge all mentioned JAXB episode files "sun-jaxb.episode" into a
- *              single one
+ * @description Merge all mentioned JAXB episode files "sun-jaxb.episode" into a single one
  */
 @Mojo (name = "merge-jaxb-episodes", defaultPhase = LifecyclePhase.PROCESS_RESOURCES, threadSafe = true)
 public final class MergeJaxbEpisodesMojo extends AbstractMojo
@@ -136,7 +137,8 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     aCommentSB.append ("\nThis file was made up of:");
     for (final File aFile : aMatches)
       aCommentSB.append ("\n  ").append (aFile.getPath ());
-    aCommentSB.append ("\n\nThis file was written at ").append (PDTFactory.getCurrentZonedDateTime ().toString ());
+    aCommentSB.append ("\n\nThis file was written at ")
+              .append (ZonedDateTime.now (ZoneId.systemDefault ()).toString ());
     return aCommentSB.toString ();
   }
 
@@ -251,8 +253,8 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
       {
         final DirectoryScanner aScanner = new DirectoryScanner ();
         aScanner.setBasedir (aRes.getDirectory ());
-        aScanner.setIncludes (aRes.getIncludes ().toArray (ArrayHelper.EMPTY_STRING_ARRAY));
-        aScanner.setExcludes (aRes.getExcludes ().toArray (ArrayHelper.EMPTY_STRING_ARRAY));
+        aScanner.setIncludes (aRes.getIncludes ().toArray (CGlobal.EMPTY_STRING_ARRAY));
+        aScanner.setExcludes (aRes.getExcludes ().toArray (CGlobal.EMPTY_STRING_ARRAY));
         aScanner.setCaseSensitive (true);
         aScanner.scan ();
 

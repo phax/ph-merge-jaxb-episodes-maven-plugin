@@ -35,14 +35,21 @@ To change this, include the plugin like this (replacing `x.y.z` with the effecti
 
 # News and noteworthy
 
-* v0.0.4 - 2023-01-08
-    * Added new option `useJakarta` that create episode files for usage in Jakarta
-* v0.0.3 - 2023-01-08
-    * Updated to Java 11 as baseline
-* v0.0.2 - 2021-08-05
-    * Changed merging algorithm to be line-based instead of DOM Node based
-* v0.0.1 - 2021-08-05
-    * Initial release
+v0.0.5 - work in progress
+* Requires Java 17 as the minimum version
+* Updated to ph-commons 12.0.0
+
+v0.0.4 - 2023-01-08
+* Added new option `useJakarta` that create episode files for usage in Jakarta
+
+v0.0.3 - 2023-01-08
+* Updated to Java 11 as baseline
+
+v0.0.2 - 2021-08-05
+* Changed merging algorithm to be line-based instead of DOM Node based
+
+v0.0.1 - 2021-08-05
+* Initial release
 
 ---
 
