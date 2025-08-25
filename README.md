@@ -35,7 +35,7 @@ To change this, include the plugin like this (replacing `x.y.z` with the effecti
 
 # News and noteworthy
 
-v0.0.5 - work in progress
+v0.0.5 - 2025-08-25
 * Requires Java 17 as the minimum version
 * Updated to ph-commons 12.0.0
 
