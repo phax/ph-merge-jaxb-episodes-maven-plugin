@@ -23,8 +23,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -49,6 +47,8 @@ import com.helger.xml.NodeListIterator;
 import com.helger.xml.XMLFactory;
 import com.helger.xml.serialize.read.DOMReader;
 import com.helger.xml.serialize.write.XMLWriter;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Philip Helger
