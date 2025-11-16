@@ -35,6 +35,10 @@ To change this, include the plugin like this (replacing `x.y.z` with the effecti
 
 # News and noteworthy
 
+v0.0.6 - 2025-11-16
+* Updated to ph-commons 12.1.0
+* Using JSpecify annotations
+
 v0.0.5 - 2025-08-25
 * Requires Java 17 as the minimum version
 * Updated to ph-commons 12.0.0

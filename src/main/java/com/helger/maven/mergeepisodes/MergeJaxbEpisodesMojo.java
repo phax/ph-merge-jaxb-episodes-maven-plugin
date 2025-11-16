@@ -31,6 +31,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -47,8 +48,6 @@ import com.helger.xml.NodeListIterator;
 import com.helger.xml.XMLFactory;
 import com.helger.xml.serialize.read.DOMReader;
 import com.helger.xml.serialize.write.XMLWriter;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * @author Philip Helger
@@ -89,7 +88,7 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
   @Parameter (name = "useJakarta", defaultValue = "true", required = false)
   private boolean useJakarta = true;
 
-  public void setBaseDirectory (@Nonnull final File aDir)
+  public void setBaseDirectory (@NonNull final File aDir)
   {
     baseDirectory = aDir;
     if (!baseDirectory.isAbsolute ())
@@ -108,8 +107,8 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     useJakarta = b;
   }
 
-  @Nonnull
-  private static String _getResString (@Nonnull final Resource aRes)
+  @NonNull
+  private static String _getResString (@NonNull final Resource aRes)
   {
     return "[dir=" +
            aRes.getDirectory () +
@@ -122,7 +121,7 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
            "]";
   }
 
-  private void _listResources (@Nonnull final String sReason)
+  private void _listResources (@NonNull final String sReason)
   {
     final List <Resource> aRess = project.getBuild ().getResources ();
     getLog ().info ("Maven resources [" + aRess.size () + "] - " + sReason);
@@ -142,7 +141,7 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     return aCommentSB.toString ();
   }
 
-  private byte [] _mergeByReadingLines (@Nonnull @Nonempty final List <File> aMatches)
+  private byte [] _mergeByReadingLines (@NonNull @Nonempty final List <File> aMatches)
   {
     if (verbose)
       getLog ().info ("Merging " + aMatches.size () + " files using line by line reading");
@@ -178,8 +177,8 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     }
   }
 
-  @Nonnull
-  private byte [] _mergeByReadingXML (@Nonnull @Nonempty final ICommonsList <File> aMatches) throws MojoExecutionException
+  @NonNull
+  private byte [] _mergeByReadingXML (@NonNull @Nonempty final ICommonsList <File> aMatches) throws MojoExecutionException
   {
     if (verbose)
       getLog ().info ("Merging " + aMatches.size () + " files using XML parsing/cloning");
