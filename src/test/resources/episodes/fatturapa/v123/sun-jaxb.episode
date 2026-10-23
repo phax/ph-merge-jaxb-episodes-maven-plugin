@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bindings version="3.0" xmlns="https://jakarta.ee/xml/ns/jaxb">
+  <bindings scd="x-schema::tns" if-exists="true" auto-acknowledge="true" xmlns:tns="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2">
+    <schemaBindings map="false">
+      <package name="com.helger.fatturapa.v123"/>
+    </schemaBindings>
+    <bindings scd="~tns:FatturaElettronicaType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123FatturaElettronicaType"/>
+    </bindings>
+    <bindings scd="~tns:FatturaElettronicaHeaderType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123FatturaElettronicaHeaderType"/>
+    </bindings>
+    <bindings scd="~tns:FatturaElettronicaBodyType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123FatturaElettronicaBodyType"/>
+    </bindings>
+    <bindings scd="~tns:DatiTrasmissioneType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiTrasmissioneType"/>
+    </bindings>
+    <bindings scd="~tns:IdFiscaleType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123IdFiscaleType"/>
+    </bindings>
+    <bindings scd="~tns:ContattiTrasmittenteType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123ContattiTrasmittenteType"/>
+    </bindings>
+    <bindings scd="~tns:DatiGeneraliType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiGeneraliType"/>
+    </bindings>
+    <bindings scd="~tns:DatiGeneraliDocumentoType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiGeneraliDocumentoType"/>
+    </bindings>
+    <bindings scd="~tns:DatiRitenutaType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiRitenutaType"/>
+    </bindings>
+    <bindings scd="~tns:DatiBolloType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiBolloType"/>
+    </bindings>
+    <bindings scd="~tns:DatiCassaPrevidenzialeType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiCassaPrevidenzialeType"/>
+    </bindings>
+    <bindings scd="~tns:ScontoMaggiorazioneType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123ScontoMaggiorazioneType"/>
+    </bindings>
+    <bindings scd="~tns:DatiSALType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiSALType"/>
+    </bindings>
+    <bindings scd="~tns:DatiDocumentiCorrelatiType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiDocumentiCorrelatiType"/>
+    </bindings>
+    <bindings scd="~tns:DatiDDTType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiDDTType"/>
+    </bindings>
+    <bindings scd="~tns:DatiTrasportoType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiTrasportoType"/>
+    </bindings>
+    <bindings scd="~tns:IndirizzoType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123IndirizzoType"/>
+    </bindings>
+    <bindings scd="~tns:FatturaPrincipaleType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123FatturaPrincipaleType"/>
+    </bindings>
+    <bindings scd="~tns:CedentePrestatoreType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123CedentePrestatoreType"/>
+    </bindings>
+    <bindings scd="~tns:DatiAnagraficiCedenteType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiAnagraficiCedenteType"/>
+    </bindings>
+    <bindings scd="~tns:AnagraficaType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123AnagraficaType"/>
+    </bindings>
+    <bindings scd="~tns:DatiAnagraficiVettoreType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiAnagraficiVettoreType"/>
+    </bindings>
+    <bindings scd="~tns:IscrizioneREAType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123IscrizioneREAType"/>
+    </bindings>
+    <bindings scd="~tns:ContattiType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123ContattiType"/>
+    </bindings>
+    <bindings scd="~tns:RappresentanteFiscaleType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123RappresentanteFiscaleType"/>
+    </bindings>
+    <bindings scd="~tns:DatiAnagraficiRappresentanteType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiAnagraficiRappresentanteType"/>
+    </bindings>
+    <bindings scd="~tns:CessionarioCommittenteType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123CessionarioCommittenteType"/>
+    </bindings>
+    <bindings scd="~tns:RappresentanteFiscaleCessionarioType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123RappresentanteFiscaleCessionarioType"/>
+    </bindings>
+    <bindings scd="~tns:DatiAnagraficiCessionarioType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiAnagraficiCessionarioType"/>
+    </bindings>
+    <bindings scd="~tns:DatiBeniServiziType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiBeniServiziType"/>
+    </bindings>
+    <bindings scd="~tns:DatiVeicoliType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiVeicoliType"/>
+    </bindings>
+    <bindings scd="~tns:DatiPagamentoType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiPagamentoType"/>
+    </bindings>
+    <bindings scd="~tns:DettaglioPagamentoType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DettaglioPagamentoType"/>
+    </bindings>
+    <bindings scd="~tns:TerzoIntermediarioSoggettoEmittenteType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123TerzoIntermediarioSoggettoEmittenteType"/>
+    </bindings>
+    <bindings scd="~tns:DatiAnagraficiTerzoIntermediarioType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiAnagraficiTerzoIntermediarioType"/>
+    </bindings>
+    <bindings scd="~tns:AllegatiType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123AllegatiType"/>
+    </bindings>
+    <bindings scd="~tns:DettaglioLineeType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DettaglioLineeType"/>
+    </bindings>
+    <bindings scd="~tns:CodiceArticoloType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123CodiceArticoloType"/>
+    </bindings>
+    <bindings scd="~tns:AltriDatiGestionaliType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123AltriDatiGestionaliType"/>
+    </bindings>
+    <bindings scd="~tns:DatiRiepilogoType" if-exists="true" auto-acknowledge="true">
+      <class ref="com.helger.fatturapa.v123.FPA123DatiRiepilogoType"/>
+    </bindings>
+    <bindings scd="~tns:FormatoTrasmissioneType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123FormatoTrasmissioneType"/>
+    </bindings>
+    <bindings scd="~tns:CausalePagamentoType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123CausalePagamentoType"/>
+    </bindings>
+    <bindings scd="~tns:TipoScontoMaggiorazioneType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123TipoScontoMaggiorazioneType"/>
+    </bindings>
+    <bindings scd="~tns:Art73Type" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123Art73Type"/>
+    </bindings>
+    <bindings scd="~tns:TipoCassaType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123TipoCassaType"/>
+    </bindings>
+    <bindings scd="~tns:TipoDocumentoType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123TipoDocumentoType"/>
+    </bindings>
+    <bindings scd="~tns:TipoRitenutaType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123TipoRitenutaType"/>
+    </bindings>
+    <bindings scd="~tns:SoggettoEmittenteType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123SoggettoEmittenteType"/>
+    </bindings>
+    <bindings scd="~tns:RegimeFiscaleType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123RegimeFiscaleType"/>
+    </bindings>
+    <bindings scd="~tns:CondizioniPagamentoType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123CondizioniPagamentoType"/>
+    </bindings>
+    <bindings scd="~tns:ModalitaPagamentoType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123ModalitaPagamentoType"/>
+    </bindings>
+    <bindings scd="~tns:RitenutaType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123RitenutaType"/>
+    </bindings>
+    <bindings scd="~tns:EsigibilitaIVAType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123EsigibilitaIVAType"/>
+    </bindings>
+    <bindings scd="~tns:NaturaType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123NaturaType"/>
+    </bindings>
+    <bindings scd="~tns:SocioUnicoType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123SocioUnicoType"/>
+    </bindings>
+    <bindings scd="~tns:StatoLiquidazioneType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123StatoLiquidazioneType"/>
+    </bindings>
+    <bindings scd="~tns:TipoCessionePrestazioneType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123TipoCessionePrestazioneType"/>
+    </bindings>
+    <bindings scd="~tns:BolloVirtualeType" if-exists="true" auto-acknowledge="true">
+      <typesafeEnumClass ref="com.helger.fatturapa.v123.FPA123BolloVirtualeType"/>
+    </bindings>
+  </bindings>
+</bindings>
+

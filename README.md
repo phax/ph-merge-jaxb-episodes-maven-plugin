@@ -40,6 +40,12 @@ To change this, include the plugin like this (replacing `x.y.z` with the effecti
 
 # News and noteworthy
 
+v0.0.7 - work in progress
+* Replaced the line-based merging algorithm with a DOM based one again.
+  The previously observed loss of the `xmlns:tns` declarations is fixed by writing the document with `XMLWriterSettings.setUseExistingNamespaceDeclarations (true)`.
+* Episode files using either the Jakarta or the Sun namespace are now accepted as input and are converted to the namespace selected via `useJakarta`.
+* Added unit tests based on real-world episode files.
+
 v0.0.6 - 2025-11-16
 * Updated to ph-commons 12.1.0
 * Using JSpecify annotations

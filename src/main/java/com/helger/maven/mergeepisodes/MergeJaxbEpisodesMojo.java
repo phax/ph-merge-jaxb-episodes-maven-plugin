@@ -17,8 +17,6 @@
 package com.helger.maven.mergeepisodes;
 
 import java.io.File;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -26,28 +24,31 @@ import java.util.List;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.misc.Since;
-import com.helger.base.CGlobal;
+import com.helger.annotation.style.VisibleForTesting;
 import com.helger.base.array.ArrayHelper;
-import com.helger.base.io.nonblocking.NonBlockingByteArrayOutputStream;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.io.file.SimpleFileIO;
+import com.helger.xml.ChildElementIterator;
 import com.helger.xml.NodeListIterator;
 import com.helger.xml.XMLFactory;
 import com.helger.xml.serialize.read.DOMReader;
 import com.helger.xml.serialize.write.XMLWriter;
+import com.helger.xml.serialize.write.XMLWriterSettings;
 
 /**
  * @author Philip Helger
@@ -58,6 +59,8 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
 {
   private static final String OUTPUT_FOLDER = "merged-jaxb-episode";
   private static final String FILENAME = "sun-jaxb.episode";
+  private static final String NS_JAKARTA = "https://jakarta.ee/xml/ns/jaxb";
+  private static final String NS_SUN = "http://java.sun.com/xml/ns/jaxb";
 
   @Parameter (property = "project", required = true, readonly = true)
   private MavenProject project;
@@ -141,76 +144,57 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     return aCommentSB.toString ();
   }
 
-  private byte [] _mergeByReadingLines (@NonNull @Nonempty final List <File> aMatches)
+  private static void _renameNamespace (@NonNull final Document aDoc,
+                                        @NonNull final Element aElement,
+                                        @NonNull final String sTargetNamespaceURI)
   {
-    if (verbose)
-      getLog ().info ("Merging " + aMatches.size () + " files using line by line reading");
-
-    final Charset aCS = StandardCharsets.UTF_8;
-    try (NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
-    {
-      aBAOS.write ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes (aCS));
-
-      aBAOS.write ((useJakarta ? "<bindings xmlns=\"https://jakarta.ee/xml/ns/jaxb\" if-exists=\"true\" version=\"3.0\">\n"
-                               : "<bindings xmlns=\"http://java.sun.com/xml/ns/jaxb\" if-exists=\"true\" version=\"2.1\">\n").getBytes (aCS));
-      aBAOS.write (("<!--\n" + _getHeaderComment (aMatches) + "\n-->\n").getBytes (aCS));
-
-      for (final File aFile : aMatches)
-      {
-        final List <String> aLines = new CommonsArrayList <> (10_000);
-        SimpleFileIO.readFileLines (aFile, aCS, aLines);
-        // Remove the first 2 and the last line
-        aLines.remove (0);
-        aLines.remove (0);
-        aLines.remove (aLines.size () - 1);
-
-        // Copy the rest into the file
-        for (final String sLine : aLines)
-        {
-          aBAOS.write (sLine.getBytes (aCS));
-          aBAOS.write ('\n');
-        }
-      }
-
-      aBAOS.write ("</bindings>\n".getBytes (aCS));
-      return aBAOS.toByteArray ();
-    }
+    final String sNS = aElement.getNamespaceURI ();
+    Element aCurrent = aElement;
+    if (NS_JAKARTA.equals (sNS) || NS_SUN.equals (sNS))
+      aCurrent = (Element) aDoc.renameNode (aElement, sTargetNamespaceURI, aElement.getLocalName ());
+    for (final Element aChild : new CommonsArrayList <> (new ChildElementIterator (aCurrent)))
+      _renameNamespace (aDoc, aChild, sTargetNamespaceURI);
   }
 
+  /**
+   * Merge the content of all provided episode files into a single episode document.
+   *
+   * @param aMatches
+   *        The episode files to merge. May not be empty.
+   * @param bUseJakarta
+   *        <code>true</code> to create a Jakarta episode, <code>false</code> to create a Sun
+   *        episode. The namespace of the source files is irrelevant and converted if necessary.
+   * @param sHeaderComment
+   *        The comment to be added at the beginning of the file. May be <code>null</code>.
+   * @param aLog
+   *        Optional logger for verbose output. May be <code>null</code>.
+   * @return The serialized merged episode file.
+   * @throws MojoExecutionException
+   *         If one of the files is not a valid episode file
+   */
+  @VisibleForTesting
   @NonNull
-  private byte [] _mergeByReadingXML (@NonNull @Nonempty final ICommonsList <File> aMatches) throws MojoExecutionException
+  static byte [] mergeEpisodes (@NonNull @Nonempty final ICommonsList <File> aMatches,
+                                final boolean bUseJakarta,
+                                @Nullable final String sHeaderComment,
+                                @Nullable final Log aLog) throws MojoExecutionException
   {
-    if (verbose)
-      getLog ().info ("Merging " + aMatches.size () + " files using XML parsing/cloning");
+    final String sTargetNamespaceURI = bUseJakarta ? NS_JAKARTA : NS_SUN;
 
     final Document aTargetDoc = XMLFactory.newDocument ();
 
-    final Element aTargetRoot;
-    if (useJakarta)
-    {
-      // <bindings xmlns="https://jakarta.ee/xml/ns/jaxb" if-exists="true"
-      // version="3.0">
-      aTargetRoot = (Element) aTargetDoc.appendChild (aTargetDoc.createElementNS ("https://jakarta.ee/xml/ns/jaxb",
-                                                                                  "bindings"));
-      aTargetRoot.setAttribute ("if-exists", "true");
-      aTargetRoot.setAttribute ("version", "3.0");
-      aTargetRoot.appendChild (aTargetDoc.createComment (_getHeaderComment (aMatches)));
-    }
-    else
-    {
-      // <bindings xmlns="http://java.sun.com/xml/ns/jaxb" if-exists="true"
-      // version="2.1">
-      aTargetRoot = (Element) aTargetDoc.appendChild (aTargetDoc.createElementNS ("http://java.sun.com/xml/ns/jaxb",
-                                                                                  "bindings"));
-      aTargetRoot.setAttribute ("if-exists", "true");
-      aTargetRoot.setAttribute ("version", "2.1");
-      aTargetRoot.appendChild (aTargetDoc.createComment (_getHeaderComment (aMatches)));
-    }
+    // <bindings xmlns="..." if-exists="true" version="3.0|2.1">
+    final Element aTargetRoot = (Element) aTargetDoc.appendChild (aTargetDoc.createElementNS (sTargetNamespaceURI,
+                                                                                              "bindings"));
+    aTargetRoot.setAttribute ("if-exists", "true");
+    aTargetRoot.setAttribute ("version", bUseJakarta ? "3.0" : "2.1");
+    if (sHeaderComment != null)
+      aTargetRoot.appendChild (aTargetDoc.createComment (sHeaderComment));
 
     for (final File aFile : aMatches)
     {
-      if (verbose)
-        getLog ().info ("Parsing XML file '" + aFile.getPath () + "'");
+      if (aLog != null)
+        aLog.info ("Parsing XML file '" + aFile.getPath () + "'");
 
       final Document aExistingDoc = DOMReader.readXMLDOM (aFile);
       if (aExistingDoc == null)
@@ -221,7 +205,9 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
         throw new MojoExecutionException ("The file '" +
                                           aFile.getAbsolutePath () +
                                           "' does not seem to be a JAXB binding file (unexpected element name)");
-      if (!"http://java.sun.com/xml/ns/jaxb".equals (aExistingRoot.getNamespaceURI ()))
+
+      final String sNS = aExistingRoot.getNamespaceURI ();
+      if (!NS_JAKARTA.equals (sNS) && !NS_SUN.equals (sNS))
         throw new MojoExecutionException ("The file '" +
                                           aFile.getAbsolutePath () +
                                           "' does not seem to be a JAXB binding file (unexpected namespace URI)");
@@ -229,11 +215,17 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
       // Copy to target document
       for (final Node aChildNode : NodeListIterator.createChildNodeIterator (aExistingRoot))
       {
-        aTargetRoot.appendChild (aTargetDoc.adoptNode (aChildNode.cloneNode (true)));
+        aTargetRoot.appendChild (aTargetDoc.importNode (aChildNode, true));
       }
     }
 
-    return XMLWriter.getNodeAsBytes (aTargetDoc);
+    // Convert to target namespace afterwards
+    for (final Element aChild : new CommonsArrayList <> (new ChildElementIterator (aTargetRoot)))
+      _renameNamespace (aTargetDoc, aChild, sTargetNamespaceURI);
+
+    // Namespace prefixes used inside attribute values (like scd="x-schema::tns") are not
+    // recognized as "used" by the serializer, so the existing declarations must be kept
+    return XMLWriter.getNodeAsBytes (aTargetDoc, new XMLWriterSettings ().setUseExistingNamespaceDeclarations (true));
   }
 
   public void execute () throws MojoExecutionException
@@ -244,34 +236,6 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
       throw new MojoExecutionException ("No episode file is specified");
 
     final ICommonsList <File> aMatches = new CommonsArrayList <> ();
-
-    if (false)
-    {
-      // Scan all existing resources
-      for (final Resource aRes : project.getBuild ().getResources ())
-      {
-        final DirectoryScanner aScanner = new DirectoryScanner ();
-        aScanner.setBasedir (aRes.getDirectory ());
-        aScanner.setIncludes (aRes.getIncludes ().toArray (CGlobal.EMPTY_STRING_ARRAY));
-        aScanner.setExcludes (aRes.getExcludes ().toArray (CGlobal.EMPTY_STRING_ARRAY));
-        aScanner.setCaseSensitive (true);
-        aScanner.scan ();
-
-        final String [] aFilenames = aScanner.getIncludedFiles ();
-        if (aFilenames != null)
-          for (final String sFilename : aFilenames)
-          {
-            final File aFile = new File (aRes.getDirectory (), sFilename);
-
-            if (sFilename.equals (FILENAME))
-            {
-              getLog ().info ("Found episode file to merge: " + aFile.getPath ());
-              aMatches.add (aFile);
-            }
-          }
-      }
-    }
-    else
     {
       // Scan the provided directory
       final DirectoryScanner aScanner = new DirectoryScanner ();
@@ -298,20 +262,13 @@ public final class MergeJaxbEpisodesMojo extends AbstractMojo
     }
     else
     {
-      final byte [] aTargetXML;
-      if (true)
-        aTargetXML = _mergeByReadingLines (aMatches);
-      else
-      {
-        // Unfortunately this approach does not work because the "tns" namespace
-        // attributes are lost:
-        // <bindings xmlns:tns="http://www.w3.org/ns/corevocabulary/business"
-        // if-exists="true" scd="x-schema::tns">
-        // becomes
-        // <bindings if-exists="true" scd="x-schema::tns">
-        // which renders the resulting file unuseable
-        aTargetXML = _mergeByReadingXML (aMatches);
-      }
+      if (verbose)
+        getLog ().info ("Merging " + aMatches.size () + " files using XML parsing/cloning");
+
+      final byte [] aTargetXML = mergeEpisodes (aMatches,
+                                                useJakarta,
+                                                _getHeaderComment (aMatches),
+                                                verbose ? getLog () : null);
       final File fTarget = new File (project.getBuild ().getDirectory () + "/" + OUTPUT_FOLDER, FILENAME);
 
       if (verbose)
