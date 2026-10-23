@@ -40,7 +40,7 @@ To change this, include the plugin like this (replacing `x.y.z` with the effecti
 
 # News and noteworthy
 
-v0.0.7 - work in progress
+v0.0.7 - 2026-10-23
 * Replaced the line-based merging algorithm with a DOM based one again.
   The previously observed loss of the `xmlns:tns` declarations is fixed by writing the document with `XMLWriterSettings.setUseExistingNamespaceDeclarations (true)`.
 * Episode files using either the Jakarta or the Sun namespace are now accepted as input and are converted to the namespace selected via `useJakarta`.
